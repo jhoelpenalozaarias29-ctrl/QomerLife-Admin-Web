@@ -21,6 +21,10 @@
            class="nav-link {{ request()->routeIs('admin.redemptions.*') ? 'active' : '' }}">
             <i class="bi bi-gift me-2"></i> Canjes
         </a>
+        <a href="{{ route('admin.incentives.index') }}" 
+           class="nav-link {{ request()->routeIs('admin.incentives.*') ? 'active' : '' }}">
+            <i class="bi bi-award me-2"></i> Incentivos
+        </a>
         <a href="{{ route('admin.reports.index') }}" 
            class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
             <i class="bi bi-file-earmark-text me-2"></i> Reportes

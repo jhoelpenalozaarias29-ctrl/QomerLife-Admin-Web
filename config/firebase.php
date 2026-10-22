@@ -60,6 +60,7 @@ return [
         'users' => 'users',
         'transactions' => 'transactions',
         'redemptions' => 'redemptions',
+        'incentives' => 'incentives',
         'machines' => 'machines',
         'settings' => 'settings',
         'audit_logs' => 'auditLogs',

@@ -38,6 +38,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/redemptions/{id}', [RedemptionController::class, 'show'])->name('redemptions.show');
         Route::patch('/redemptions/{id}/status', [RedemptionController::class, 'updateStatus'])->name('redemptions.updateStatus');
 
+        // Incentives (Catálogo de premios para canje en app móvil)
+        Route::post('/incentives/seed-defaults', [\App\Http\Controllers\Admin\IncentiveController::class, 'seedDefaults'])->name('incentives.seedDefaults');
+        Route::patch('/incentives/{id}/toggle', [\App\Http\Controllers\Admin\IncentiveController::class, 'toggleAvailability'])->name('incentives.toggle');
+        Route::resource('incentives', \App\Http\Controllers\Admin\IncentiveController::class);
+
         // Settings
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');

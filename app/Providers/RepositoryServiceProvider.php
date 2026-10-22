@@ -67,6 +67,13 @@ class RepositoryServiceProvider extends ServiceProvider
             );
         });
 
+        $this->app->bind(\App\Repositories\Contracts\IncentiveRepositoryInterface::class, function ($app) {
+            return new \App\Repositories\Firestore\FirestoreIncentiveRepository(
+                $app->make(FirestoreClient::class),
+                config('firebase.collections.incentives', 'incentives')
+            );
+        });
+
         // Soporte retrocompatible para namespace alternativo App\Contracts\Repositories
         if (!interface_exists('App\Contracts\Repositories\UserRepositoryInterface')) {
             class_alias(UserRepositoryInterface::class, 'App\Contracts\Repositories\UserRepositoryInterface');
