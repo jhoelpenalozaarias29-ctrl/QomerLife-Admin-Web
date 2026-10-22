@@ -78,5 +78,14 @@ document.addEventListener('DOMContentLoaded', function() {
     closeBtn?.addEventListener('click', () => {
         sidebar?.classList.remove('show');
     });
+
+    // Cerrar sidebar al hacer clic fuera en pantallas móviles
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth < 992 && sidebar && sidebar.classList.contains('show')) {
+            if (!sidebar.contains(e.target) && !openBtn?.contains(e.target)) {
+                sidebar.classList.remove('show');
+            }
+        }
+    });
 });
 </script>

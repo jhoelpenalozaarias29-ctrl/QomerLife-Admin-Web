@@ -65,7 +65,7 @@
                             </label>
                             <input type="text" class="form-control qomer-input" id="systemName"
                                    name="systemName"
-                                   value="{{ old('systemName', $settings['systemName'] ?? \"Q'omer Life\") }}"
+                                   value="{{ old('systemName', $settings['systemName'] ?? 'Q\'omer Life') }}"
                                    required>
                         </div>
 
