@@ -9,6 +9,8 @@ class FirestoreUser implements AuthenticatableContract
 {
     use Authenticatable;
 
+    public ?string $remember_token = null;
+
     public function __construct(
         public string $uid,
         public string $name = '',

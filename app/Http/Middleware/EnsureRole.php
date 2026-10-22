@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class EnsureRole
 {
-    public function handle(Request $request, Closure $next, string $roles)
+    public function handle(Request $request, Closure $next, string ...$roles)
     {
         $user = Auth::user();
 
@@ -16,8 +16,17 @@ class EnsureRole
             return redirect()->route('admin.login');
         }
 
-        $allowed = explode(',', $roles);
-        if (! in_array(strtoupper($user->role), array_map('trim', array_map('strtoupper', $allowed)), true)) {
+        $flatRoles = [];
+        foreach ($roles as $r) {
+            foreach (explode(',', $r) as $part) {
+                $trimmed = strtoupper(trim($part));
+                if ($trimmed !== '') {
+                    $flatRoles[] = $trimmed;
+                }
+            }
+        }
+
+        if (! in_array(strtoupper($user->role), $flatRoles, true)) {
             abort(403);
         }
 
