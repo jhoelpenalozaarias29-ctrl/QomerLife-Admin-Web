@@ -17,15 +17,15 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $transactions = [];
-        $search   = $request->query('search');
-        $material = strtoupper($request->query('material', ''));
+        $search   = trim($request->query('search', ''));
+        $material = strtoupper(trim($request->query('material', '')));
+        $dateFrom = $request->query('date_from');
+        $dateTo   = $request->query('date_to');
 
         try {
-            // Traer todo y filtrar en PHP (Firestore REST no soporta múltiples filtros fácilmente)
             $all = $this->transactionRepository->all();
 
-            // Filtro por búsqueda de texto
-            if ($search) {
+            if ($search !== '') {
                 $searchLower = strtolower($search);
                 $all = array_filter($all, function ($tx) use ($searchLower) {
                     return str_contains(strtolower($tx['token']     ?? ''), $searchLower)
@@ -35,24 +35,23 @@ class TransactionController extends Controller
                 });
             }
 
-            // Filtro por material
-            if ($material) {
+            if ($material !== '') {
                 $all = array_filter($all, function ($tx) use ($material) {
                     return strtoupper($tx['material'] ?? '') === $material;
                 });
             }
 
-            // Ordenar por fechaCreacion descendente (más reciente primero)
-            usort($all, function ($a, $b) {
-                $getTs = function ($item) {
-                    $val = $item['fechaCreacion'] ?? $item['createdAt'] ?? null;
-                    if (!$val) return 0;
-                    if (is_object($val) && method_exists($val, 'get')) return $val->get()->getTimestamp();
-                    if ($val instanceof \DateTimeInterface) return $val->getTimestamp();
-                    return is_numeric($val) ? (int) $val : strtotime((string) $val);
-                };
-                return $getTs($b) <=> $getTs($a);
-            });
+            if ($dateFrom || $dateTo) {
+                $fromTs = $dateFrom ? strtotime($dateFrom . ' 00:00:00') : 0;
+                $toTs   = $dateTo ? strtotime($dateTo . ' 23:59:59') : PHP_INT_MAX;
+
+                $all = array_filter($all, function ($tx) use ($fromTs, $toTs) {
+                    $ts = $this->getTs($tx);
+                    return $ts >= $fromTs && $ts <= $toTs;
+                });
+            }
+
+            usort($all, fn($a, $b) => $this->getTs($b) <=> $this->getTs($a));
 
             $transactions = array_values($all);
 
@@ -60,12 +59,38 @@ class TransactionController extends Controller
             Log::error('Error fetching transactions: ' . $e->getMessage());
         }
 
+        $totalPoints = 0;
+        $totalBottles = 0;
+        $totalCans = 0;
+        foreach ($transactions as $t) {
+            $totalPoints += (int)($t['ecoPoints'] ?? 0);
+            $totalBottles += (int)($t['plasticBottlesCount'] ?? ($t['bottles'] ?? 0));
+            $totalCans += (int)($t['aluminumCansCount'] ?? ($t['cans'] ?? 0));
+        }
+
         return view('admin.transactions.index', [
             'breadcrumbs'  => ['Dashboard' => route('admin.dashboard'), 'Transacciones' => null],
             'transactions' => $transactions,
             'search'       => $search,
             'material'     => $material,
+            'date_from'    => $dateFrom,
+            'date_to'      => $dateTo,
+            'kpis'         => [
+                'total'   => count($transactions),
+                'points'  => $totalPoints,
+                'bottles' => $totalBottles,
+                'cans'    => $totalCans,
+            ]
         ]);
+    }
+
+    private function getTs(array $item): int
+    {
+        $val = $item['fechaCreacion'] ?? $item['createdAt'] ?? null;
+        if (!$val) return 0;
+        if (is_object($val) && method_exists($val, 'get')) return $val->get()->getTimestamp();
+        if ($val instanceof \DateTimeInterface) return $val->getTimestamp();
+        return is_numeric($val) ? (int)$val : (strtotime((string)$val) ?: 0);
     }
 
     public function show(string $id)

@@ -19,22 +19,49 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $users = [];
-        $search = $request->query('search');
+        $search = trim($request->query('search', ''));
+        $role = strtoupper(trim($request->query('role', '')));
+        $status = strtoupper(trim($request->query('status', '')));
 
         try {
-            if ($search) {
+            if ($search !== '') {
                 $users = $this->userRepository->search($search);
             } else {
                 $users = $this->userRepository->all();
             }
+
+            if ($role !== '') {
+                $users = array_filter($users, fn($u) => strtoupper($u->role ?? 'USER') === $role);
+            }
+
+            if ($status !== '') {
+                $users = array_filter($users, fn($u) => strtoupper($u->status ?? 'ACTIVE') === $status);
+            }
+
+            $users = array_values($users);
         } catch (\Exception $e) {
             Log::error('Error fetching users: ' . $e->getMessage());
         }
 
+        $totalUsers = count($users);
+        $totalPoints = 0;
+        $adminCount = 0;
+        foreach ($users as $u) {
+            $totalPoints += (int)($u->attributes['ecoPoints'] ?? 0);
+            if (strtoupper($u->role ?? '') === 'ADMIN') $adminCount++;
+        }
+
         return view('admin.users.index', [
-            'breadcrumbs' => ['Dashboard' => route('admin.dashboard'), 'Users' => null],
+            'breadcrumbs' => ['Dashboard' => route('admin.dashboard'), 'Usuarios' => null],
             'users' => $users,
-            'search' => $search
+            'search' => $search,
+            'role' => $role,
+            'status' => $status,
+            'kpis' => [
+                'total' => $totalUsers,
+                'points' => $totalPoints,
+                'admins' => $adminCount,
+            ]
         ]);
     }
 
