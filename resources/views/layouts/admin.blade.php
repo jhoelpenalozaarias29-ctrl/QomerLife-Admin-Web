@@ -94,11 +94,15 @@
         /* --- SIDEBAR REDISEÑADO --- */
         .qomer-sidebar {
             width: 270px;
-            min-height: 100vh;
+            height: 100vh;
             background: var(--qomer-surface);
             border-right: 1px solid var(--qomer-border-subtle) !important;
             z-index: 1030;
             transition: all 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
         }
 
         .qomer-sidebar .brand-title {
@@ -160,25 +164,23 @@
 
         .qomer-main {
             margin-left: 270px;
-            transition: margin-left 0.3s ease;
+            width: calc(100% - 270px);
             min-height: 100vh;
             display: flex;
-            flex-column: column;
+            flex-direction: column;
+            transition: margin-left 0.3s ease, width 0.3s ease;
         }
 
         @media (max-width: 991.98px) {
             .qomer-sidebar {
                 transform: translateX(-100%);
-                position: fixed;
-                top: 0;
-                bottom: 0;
-                left: 0;
             }
             .qomer-sidebar.show {
                 transform: translateX(0);
             }
             .qomer-main {
                 margin-left: 0 !important;
+                width: 100% !important;
             }
         }
 

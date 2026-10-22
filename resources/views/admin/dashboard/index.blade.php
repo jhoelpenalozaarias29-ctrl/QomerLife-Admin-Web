@@ -62,7 +62,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-baseline gap-2 mt-auto">
-                    <h3 class="display-6 fw-bold mb-0 text-white font-display stat-number" data-target="{{ $totalUsers ?? 0 }}">
+                    <h3 class="display-6 fw-bold mb-0 font-display stat-number" style="color: var(--qomer-text-primary);" data-target="{{ $totalUsers ?? 0 }}">
                         0
                     </h3>
                     <span class="small text-success fw-semibold" style="font-size: 0.78rem;">
@@ -90,7 +90,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-baseline gap-2 mt-auto">
-                    <h3 class="display-6 fw-bold mb-0 text-white font-display stat-number" data-target="{{ $totalTransactions ?? 0 }}">
+                    <h3 class="display-6 fw-bold mb-0 font-display stat-number" style="color: var(--qomer-text-primary);" data-target="{{ $totalTransactions ?? 0 }}">
                         0
                     </h3>
                     <span class="small text-info fw-semibold" style="font-size: 0.78rem;">
@@ -118,7 +118,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-baseline gap-2 mt-auto">
-                    <h3 class="display-6 fw-bold mb-0 text-white font-display stat-number" data-target="{{ $totalEcoPoints ?? 0 }}">
+                    <h3 class="display-6 fw-bold mb-0 font-display stat-number" style="color: var(--qomer-text-primary);" data-target="{{ $totalEcoPoints ?? 0 }}">
                         0
                     </h3>
                     <span class="small text-warning fw-semibold" style="font-size: 0.78rem;">
@@ -146,7 +146,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-baseline gap-2 mt-auto">
-                    <h3 class="display-6 fw-bold mb-0 text-white font-display stat-number" data-target="{{ $totalRedemptions ?? 0 }}">
+                    <h3 class="display-6 fw-bold mb-0 font-display stat-number" style="color: var(--qomer-text-primary);" data-target="{{ $totalRedemptions ?? 0 }}">
                         0
                     </h3>
                     <span class="small fw-semibold" style="font-size: 0.78rem; color: #A855F7;">

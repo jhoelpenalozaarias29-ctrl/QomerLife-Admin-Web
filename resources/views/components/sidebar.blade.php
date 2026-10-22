@@ -1,4 +1,4 @@
-<aside id="qomerSidebar" class="qomer-sidebar d-flex flex-column p-3 position-fixed">
+<aside id="qomerSidebar" class="qomer-sidebar d-flex flex-column p-3">
     {{-- Logotipo y Marca --}}
     <div class="d-flex align-items-center justify-content-between mb-4 px-2 pt-1">
         <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center gap-2 text-decoration-none">
