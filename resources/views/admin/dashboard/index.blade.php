@@ -24,13 +24,16 @@
                     <p class="text-light text-opacity-75 mb-3 small" style="max-width: 620px;">
                         Supervisión integral de las máquinas recicladoras inteligentes, emisión de EcoPoints en tiempo real y canje de beneficios universitarios.
                     </p>
-                    <div class="d-flex flex-wrap gap-2 text-muted small">
+                    <div class="d-flex flex-wrap align-items-center gap-2 text-muted small">
                         <span class="badge bg-dark bg-opacity-50 border border-secondary border-opacity-25 px-3 py-2 text-light">
                             <i class="bi bi-calendar3 me-1 text-success"></i> {{ date('d/m/Y') }}
                         </span>
                         <span class="badge bg-dark bg-opacity-50 border border-secondary border-opacity-25 px-3 py-2 text-light">
-                            <i class="bi bi-clock me-1 text-info"></i> Actualización en <span id="refresh-countdown" class="fw-bold text-success">60</span>s
+                            <i class="bi bi-clock-history me-1 text-info"></i> Última sincronización: <strong class="text-white">{{ $lastSyncTime ?? date('H:i') }}</strong>
                         </span>
+                        <a href="{{ route('admin.dashboard', ['refresh' => 1]) }}" class="btn btn-sm px-3 py-1 text-white border border-success border-opacity-50" style="background: rgba(0, 199, 129, 0.2); border-radius: 8px;">
+                            <i class="bi bi-arrow-clockwise me-1 text-success"></i> Recargar Datos
+                        </a>
                     </div>
                 </div>
 
@@ -424,16 +427,7 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Contador automático de actualización (60s)
-    let seconds = 60;
-    const el = document.getElementById('refresh-countdown');
-    setInterval(() => {
-        seconds--;
-        if (el) el.textContent = seconds;
-        if (seconds <= 0) window.location.reload();
-    }, 1000);
-
-    // 2. Animación suave de números con GSAP
+    // 1. Animación suave de números con GSAP (solo al entrar a la vista)
     if (typeof gsap !== 'undefined') {
         gsap.from('#kpiStatsContainer .card', {
             duration: 0.8,
