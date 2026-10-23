@@ -25,14 +25,22 @@ class FirebaseServiceProvider extends ServiceProvider
         $this->app->singleton(FirebaseFactory::class, function () {
             $factory = new FirebaseFactory();
 
-            $credentials = config('firebase.credentials');
-            if ($credentials) {
-                if (file_exists($credentials)) {
+            // Priority 1: FIREBASE_CREDENTIALS_JSON env var (JSON string directly — used in cloud hosting like Render)
+            $credentialsJson = env('FIREBASE_CREDENTIALS_JSON');
+            if ($credentialsJson) {
+                $decoded = json_decode($credentialsJson, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $factory = $factory->withServiceAccount($decoded);
+                }
+            } else {
+                // Priority 2: FIREBASE_CREDENTIALS path to a JSON file (used locally)
+                $credentials = config('firebase.credentials');
+                if ($credentials && file_exists($credentials)) {
                     putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $credentials);
                     $_ENV['GOOGLE_APPLICATION_CREDENTIALS'] = $credentials;
                     $_SERVER['GOOGLE_APPLICATION_CREDENTIALS'] = $credentials;
+                    $factory = $factory->withServiceAccount($credentials);
                 }
-                $factory = $factory->withServiceAccount($credentials);
             }
 
             if ($projectId = config('firebase.project_id')) {
