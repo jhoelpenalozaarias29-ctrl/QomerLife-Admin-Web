@@ -25,11 +25,17 @@ class FirebaseServiceProvider extends ServiceProvider
         $this->app->singleton(FirebaseFactory::class, function () {
             $factory = new FirebaseFactory();
 
-            // Priority 1: FIREBASE_CREDENTIALS_JSON env var (JSON string directly — used in cloud hosting like Render)
+            // Priority 1: FIREBASE_CREDENTIALS_JSON env var (JSON string — used in cloud hosting like Render)
             $credentialsJson = env('FIREBASE_CREDENTIALS_JSON');
             if ($credentialsJson) {
                 $decoded = json_decode($credentialsJson, true);
                 if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    // Write to a temp file so Google Cloud PHP (Firestore) can read via ADC
+                    $tmpPath = sys_get_temp_dir() . '/firebase-credentials.json';
+                    file_put_contents($tmpPath, $credentialsJson);
+                    putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $tmpPath);
+                    $_ENV['GOOGLE_APPLICATION_CREDENTIALS']    = $tmpPath;
+                    $_SERVER['GOOGLE_APPLICATION_CREDENTIALS'] = $tmpPath;
                     $factory = $factory->withServiceAccount($decoded);
                 }
             } else {
@@ -37,7 +43,7 @@ class FirebaseServiceProvider extends ServiceProvider
                 $credentials = config('firebase.credentials');
                 if ($credentials && file_exists($credentials)) {
                     putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $credentials);
-                    $_ENV['GOOGLE_APPLICATION_CREDENTIALS'] = $credentials;
+                    $_ENV['GOOGLE_APPLICATION_CREDENTIALS']    = $credentials;
                     $_SERVER['GOOGLE_APPLICATION_CREDENTIALS'] = $credentials;
                     $factory = $factory->withServiceAccount($credentials);
                 }
