@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use App\Services\Firebase\FirestoreClient;
 use App\Models\FirestoreUser;
+use Illuminate\Support\Facades\Log;
 
 class FirestoreUserProvider implements UserProvider
 {
@@ -21,9 +22,13 @@ class FirestoreUserProvider implements UserProvider
             return null;
         }
 
-        $snapshot = $this->firestore->find($this->collection, (string) $identifier);
-
-        return $snapshot ? FirestoreUser::fromFirestore($snapshot->data(), $snapshot->id()) : null;
+        try {
+            $snapshot = $this->firestore->find($this->collection, (string) $identifier);
+            return $snapshot ? FirestoreUser::fromFirestore($snapshot->data(), $snapshot->id()) : null;
+        } catch (\Throwable $e) {
+            Log::warning("FirestoreUserProvider: No se pudo recuperar usuario [{$identifier}] desde Firestore por cuota o red: " . $e->getMessage());
+            return null;
+        }
     }
 
     public function retrieveByToken($identifier, $token): ?Authenticatable
@@ -48,7 +53,6 @@ class FirestoreUserProvider implements UserProvider
 
     public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false): bool
     {
-        // Este provider no gestiona contraseñas locales; nunca rehash.
         return false;
     }
 }
