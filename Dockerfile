@@ -2,7 +2,7 @@ FROM php:8.2-apache
 
 WORKDIR /var/www/html
 
-# Install system dependencies
+# Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
@@ -13,13 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     libsqlite3-dev \
     ca-certificates \
-    autoconf \
-    pkg-config \
-    gcc \
-    make \
     && docker-php-ext-install pdo pdo_sqlite mbstring bcmath \
-    && pecl install grpc \
-    && docker-php-ext-enable grpc \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -29,8 +23,13 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY . /var/www/html
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+# Install PHP dependencies ignoring grpc extension (we use REST transport, not gRPC)
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction \
+    --prefer-dist \
+    --ignore-platform-req=ext-grpc
 
 # Configure Apache DocumentRoot to Laravel public/
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
