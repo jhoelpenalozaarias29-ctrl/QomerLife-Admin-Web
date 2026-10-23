@@ -1,9 +1,8 @@
 FROM php:8.2-apache
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Install required system libraries and PHP extensions
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
@@ -14,7 +13,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     libsqlite3-dev \
     ca-certificates \
+    autoconf \
+    pkg-config \
+    gcc \
+    make \
     && docker-php-ext-install pdo pdo_sqlite mbstring bcmath \
+    && pecl install grpc \
+    && docker-php-ext-enable grpc \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -24,7 +29,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY . /var/www/html
 
-# Install Composer dependencies (production)
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # Configure Apache DocumentRoot to Laravel public/
